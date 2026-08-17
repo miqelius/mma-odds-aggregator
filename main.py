@@ -17,11 +17,21 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# SQLAdmin ადმინ-პანელის ინიციალიზაცია და მოდელების რეგისტრაცია
+# SQLAdmin ადმინ-პანელის მოდელების ხედები
+class EventAdmin(ModelView, model=Event):
+    column_list = [Event.id]
+
+class FighterAdmin(ModelView, model=Fighter):
+    column_list = [Fighter.id]
+
+class OddsRecordAdmin(ModelView, model=OddsRecord):
+    column_list = [OddsRecord.id]
+
+# ადმინ-პანელის ინიციალიზაცია
 admin = Admin(app, engine)
-admin.add_view(ModelView(Event))
-admin.add_view(ModelView(Fighter))
-admin.add_view(ModelView(OddsRecord))
+admin.add_view(EventAdmin)
+admin.add_view(FighterAdmin)
+admin.add_view(OddsRecordAdmin)
 
 # მივუჩინოთ FastAPI-ს სად არის ჩვენი templates საქაღალდე
 templates = Jinja2Templates(directory="templates")
@@ -39,7 +49,6 @@ def get_db():
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request, db: Session = Depends(get_db)):
     events = db.query(Event).all()
-    # ვუგზავნით მონაცემებს HTML შაბლონს (გასწორებულია Starlette-ის ახალი ვერსიებისთვის)
     return templates.TemplateResponse(request, "index.html", {"events": events})
 
 @app.get("/api/events")
