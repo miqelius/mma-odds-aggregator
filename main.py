@@ -8,33 +8,31 @@ from sqladmin import Admin, ModelView
 from sqladmin.authentication import AuthenticationBackend
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.staticfiles import StaticFiles
-import os
-from fastapi.staticfiles import StaticFiles
 
-# ავტომატურად შექმნის static საქაღალდეს, რომ სერვერმა არ იჩივლოს
-os.makedirs("static", exist_ok=True)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-from app.db.database import SessionLocal, engine
-from app.models import Base, Event, Fighter, OddsRecord
-from app.api.v1.arbitrage import router as arbitrage_router
-from app.services.scraper import scrape_tapology_legends
-
-Base.metadata.create_all(bind=engine)
-
+# 1. FastAPI აპლიკაციის ერთადერთი და სწორი ინიციალიზაცია
 app = FastAPI(
     title="MMA Betting Intelligence Hub",
     description="Arbitrage Detection & Odds Monitoring API",
     version="1.0.0"
 )
 
-# 1. სტატიკური ფაილების (სურათები, CSS) მიბმა
+# 2. სტატიკური ფაილების და სდელების (Static & Templates) მიბმა
+os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
 
-# 2. სესიების მიდლვერი ავტორიზაციისთვის
+# 3. სესიების მიდლვერი ავტორიზაციისთვის
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", "super-secret-key-123"))
 
-# 3. ადმინ-პანელის ავტორიზაცია JSON ლექსიკონით (Environment Variables-დან)
+from app.db.database import SessionLocal, engine
+from app.models import Base, Event, Fighter, OddsRecord, Article
+from app.api.v1.arbitrage import router as arbitrage_router
+from app.services.scraper import scrape_tapology_legends
+from app.services.news_agent import fetch_and_save_ufc_news
+
+Base.metadata.create_all(bind=engine)
+
+# 4. ადმინ-პანელის ავტორიზაცია JSON ლექსიკონით (Environment Variables-დან)
 class AdminAuth(AuthenticationBackend):
     def __init__(self, secret_key: str):
         super().__init__(secret_key=secret_key)
@@ -44,7 +42,6 @@ class AdminAuth(AuthenticationBackend):
         username = form.get("username")
         password = form.get("password")
         
-        # ვკითხულობთ Render-ის Environment Variable-დან (ADMINS_JSON)
         admins_env = os.getenv("ADMINS_JSON", "{}")
         try:
             admins_dict = json.loads(admins_env)
@@ -66,7 +63,7 @@ class AdminAuth(AuthenticationBackend):
 
 authentication_backend = AdminAuth(secret_key=os.getenv("SECRET_KEY", "super-secret-key-123"))
 
-# 4. SQLAdmin მოდელების ხედები
+# 5. SQLAdmin მოდელების ხედები (Event, Fighter, OddsRecord, Article)
 class EventAdmin(ModelView, model=Event):
     column_list = [Event.id]
 
@@ -76,14 +73,16 @@ class FighterAdmin(ModelView, model=Fighter):
 class OddsRecordAdmin(ModelView, model=OddsRecord):
     column_list = [OddsRecord.id]
 
-# ინიციალიზაცია ავტორიზაციით
+class ArticleAdmin(ModelView, model=Article):
+    column_list = [Article.id, Article.title, Article.category, Article.created_at]
+    form_columns = [Article.title, Article.category, Article.image_url, Article.content]
+
+# ადმინ-პანელის ინიციალიზაცია
 admin = Admin(app, engine, authentication_backend=authentication_backend)
 admin.add_view(EventAdmin)
 admin.add_view(FighterAdmin)
 admin.add_view(OddsRecordAdmin)
-
-# მივუჩინოთ FastAPI-ს სად არის templates საქაღალდე
-templates = Jinja2Templates(directory="templates")
+admin.add_view(ArticleAdmin)
 
 app.include_router(arbitrage_router)
 
@@ -94,11 +93,15 @@ def get_db():
     finally:
         db.close()
 
-# მთავარი გვერდი
+# მთავარი გვერდი (სტატიების გამოტანით)
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request, db: Session = Depends(get_db)):
     events = db.query(Event).all()
-    return templates.TemplateResponse(request, "index.html", {"events": events})
+    articles = db.query(Article).order_by(Article.created_at.desc()).all()
+    return templates.TemplateResponse(request, "index.html", {
+        "events": events,
+        "articles": articles
+    })
 
 @app.get("/api/events")
 def get_events(db: Session = Depends(get_db)):
@@ -118,8 +121,6 @@ async def get_legendary_fights():
     return data
 
 # --- ავტომატური ნიუსების აგენტის ენდპოინტი ---
-from app.services.news_agent import fetch_and_save_ufc_news
-
 @app.get("/api/fetch-news")
 async def run_news_agent(db: Session = Depends(get_db)):
     result = await fetch_and_save_ufc_news(db)
