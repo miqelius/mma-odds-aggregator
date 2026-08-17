@@ -3,174 +3,549 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MMA Betting Intelligence Hub</title>
+<title>MMA Betting Hub</title>
 <style>
-  body { 
-    margin: 0; 
-    font-family: sans-serif; 
-    background: #050505; 
-    color: #fff; 
-    overflow-x: hidden; 
-    position: relative; 
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto+Condensed:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0a0a0a;
+    --surface: #140e0e;
+    --surface-light: #1e1414;
+    --border: #2a1a1a;
+    --primary: #e62429;
+    --primary-glow: rgba(230,36,41,0.5);
+    --text: #f5f5f5;
+    --muted: #a0a0a0;
+    --gold: #d4af37;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Roboto Condensed', sans-serif;
+    overflow-x: hidden;
+    position: relative;
     min-height: 100vh;
   }
-  
+
   /* GLOBAL BACKGROUND SLIDESHOW */
-  .bg-slideshow { 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    z-index: -2; 
-    pointer-events: none; 
-    background: #050505;
+  .bg-slideshow {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -3;
+    pointer-events: none;
+    background: var(--bg);
   }
-  .bg-slideshow img { 
-    position: absolute; 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-    object-position: center top; 
-    transition: opacity 1.5s ease-in-out; 
-    opacity: 0; 
+  .bg-slideshow img {
+    position: absolute;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center center;
+    transition: opacity 1.8s ease-in-out, transform 7s ease-in-out;
+    opacity: 0;
+    transform: scale(1.05);
   }
-  .bg-slideshow img.active { 
-    opacity: 1; 
+  .bg-slideshow img.active {
+    opacity: 0.4;
+    transform: scale(1);
   }
-  
+
   .page-overlay {
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%;
-    background: rgba(5, 5, 5, 0.8); 
-    z-index: -1; 
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(230,36,41,0.12), transparent 60%),
+      linear-gradient(to bottom, rgba(10,10,10,0.85), rgba(10,10,10,0.97));
+    z-index: -2;
     pointer-events: none;
   }
 
-  /* LANGUAGE SWITCHER */
+  /* NAVBAR */
+  .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+  }
+  .nav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .logo {
+    font-family: 'Oswald', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo span {
+    color: var(--primary);
+  }
+  .logo-icon {
+    font-size: 26px;
+    filter: drop-shadow(0 0 8px var(--primary-glow));
+  }
   .lang-bar {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 10;
+    display: flex;
+    gap: 8px;
   }
   .lang-bar button {
-    background: rgba(18, 10, 10, 0.9);
-    border: 1px solid #3d1a1a;
-    color: #fff;
-    padding: 6px 12px;
+    background: rgba(20, 14, 14, 0.9);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
     cursor: pointer;
-    border-radius: 4px;
-    font-weight: bold;
-    transition: 0.2s;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
   }
   .lang-bar button:hover {
-    border-color: #ff3333;
-    color: #ff3333;
+    border-color: var(--primary);
+    color: #fff;
+    background: rgba(230,36,41,0.2);
+    box-shadow: 0 0 15px var(--primary-glow);
   }
 
   /* HERO SECTION */
-  .hero { 
-    padding: 40px 20px 20px 20px; 
-    text-align: center; 
+  .hero {
+    padding: 60px 20px 40px;
+    text-align: center;
+    position: relative;
   }
-  .hero h1 { 
-    font-size: 38px; 
-    margin: 0; 
-    color: #fff; 
-    text-shadow: 0 2px 10px rgba(0,0,0,0.9); 
-    letter-spacing: 2px; 
-    text-transform: uppercase; 
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
   }
-  .hero h1 span { 
-    color: #ff3333; 
+  .hero-tag {
+    display: inline-block;
+    background: rgba(230,36,41,0.15);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 5px 16px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 15px;
   }
-  .subtitle { 
-    font-size: 13px; 
-    color: #ff3333; 
-    letter-spacing: 3px; 
-    margin-top: 8px; 
-    text-transform: uppercase; 
-    font-weight: bold; 
+  .hero h1 {
+    font-family: 'Oswald', sans-serif;
+    font-size: 50px;
+    font-weight: 700;
+    margin: 0;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(230,36,41,0.6);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .hero h1 span {
+    color: var(--primary);
+  }
+  .subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    margin-top: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .hero-actions {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .btn-primary, .btn-outline {
+    display: inline-block;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: #fff;
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 20px var(--primary-glow);
+  }
+  .btn-primary:hover {
+    background: #ff2d33;
+    box-shadow: 0 0 35px var(--primary-glow);
+    transform: translateY(-2px);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 0 15px rgba(230,36,41,0.3);
   }
 
-  /* GRID LAYOUT */
-  .container { 
-    max-width: 1100px; 
-    margin: 20px auto; 
-    padding: 0 20px; 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 20px; 
+  /* CONTAINER */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px 40px;
   }
-  .card { 
-    background: rgba(18, 10, 10, 0.85); 
-    border: 1px solid #3d1a1a; 
-    border-radius: 8px; 
-    padding: 20px; 
-    transition: 0.3s; 
-    backdrop-filter: blur(5px);
+
+  /* SECTION HEADER */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
   }
-  .card:hover { 
-    border-color: #ff3333; 
+  .section-header h2 {
+    font-family: 'Oswald', sans-serif;
+    color: #fff;
+    font-size: 20px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-  .card h2 { 
-    color: #ff3333; 
-    font-size: 16px; 
-    margin-top: 0; 
-    margin-bottom: 10px; 
-    letter-spacing: 1px; 
+  .section-icon {
+    color: var(--primary);
   }
-  .event-info {
-    font-size: 14px;
-    color: #ddd;
-    margin: 5px 0;
+  .live-badge {
+    background: var(--primary);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 var(--primary-glow); }
+    50% { box-shadow: 0 0 0 8px rgba(230,36,41,0); }
+  }
+
+  /* CARDS */
+  .card {
+    background: rgba(20, 14, 14, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: linear-gradient(to bottom, var(--primary), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .card:hover {
+    border-color: rgba(230,36,41,0.5);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+  }
+  .card:hover::before {
+    opacity: 1;
+  }
+
+  /* EVENTS GRID */
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .event-card {
+    background: rgba(30, 20, 20, 0.8);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+  }
+  .event-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(230,36,41,0.2);
+  }
+  .event-promo {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .event-date {
+    color: var(--muted);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .event-status {
+    margin-top: 10px;
+    display: inline-block;
+    background: rgba(212,175,55,0.15);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* NEWS GRID */
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    margin-top: 5px;
+  }
+  .news-card {
+    background: rgba(30, 20, 20, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+  }
+  .news-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(230,36,41,0.3);
+  }
+  .news-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    filter: grayscale(30%);
+    transition: filter 0.3s;
+  }
+  .news-card:hover .news-img {
+    filter: grayscale(0%);
+  }
+  .news-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    position: relative;
+  }
+  .news-badge {
+    background: var(--primary);
+    color: #fff;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    align-self: flex-start;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .news-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 6px 0;
+    line-height: 1.3;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.5px;
+  }
+  .news-date {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .news-text {
+    font-size: 13px;
+    color: #ccc;
+    line-height: 1.5;
+    flex-grow: 1;
+    margin-bottom: 12px;
+  }
+  .news-btn {
+    display: inline-block;
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    text-align: center;
+    padding: 8px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    text-transform: uppercase;
+  }
+  .news-btn:hover {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: 0 0 15px var(--primary-glow);
   }
 
   /* BOT SECTION */
-  .bot-section { 
-    max-width: 1100px; 
-    margin: 20px auto 40px auto; 
-    padding: 0 20px; 
+  .bot-section {
+    max-width: 1200px;
+    margin: 0 auto 40px;
+    padding: 0 20px;
   }
-  .bot-card { 
-    background: rgba(18, 10, 10, 0.85); 
-    border: 1px solid #ff3333; 
-    border-radius: 8px; 
-    padding: 20px; 
-    text-align: center; 
-    backdrop-filter: blur(5px);
+  .bot-card {
+    background: rgba(20, 14, 14, 0.9);
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(230,36,41,0.2);
   }
-  .bot-card h2 { 
-    margin: 0 0 10px 0; 
-    color: #ff3333; 
-    font-size: 16px; 
+  .bot-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
   }
-  .bot-card input { 
-    width: 70%; 
-    padding: 10px; 
-    background: #050505; 
-    border: 1px solid #3d1a1a; 
-    color: #fff; 
-    border-radius: 4px; 
-    outline: none; 
+  .bot-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(230,36,41,0.2);
+    border: 1px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    animation: float 3s ease-in-out infinite;
   }
-  .bot-card input:focus { 
-    border-color: #ff3333; 
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+  .bot-header h2 {
+    font-family: 'Oswald', sans-serif;
+    color: #fff;
+    font-size: 18px;
+    letter-spacing: 1px;
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .bot-header p {
+    color: var(--muted);
+    font-size: 12px;
+    margin: 2px 0 0;
+  }
+  .chat-log {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .chat-msg {
+    padding: 8px 12px;
+    border-radius: 8px;
+    max-width: 80%;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .chat-msg.user {
+    background: var(--primary);
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+  }
+  .chat-msg.bot {
+    background: var(--surface-light);
+    border: 1px solid var(--border);
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+  }
+  .bot-input-group {
+    display: flex;
+    gap: 8px;
+  }
+  .bot-input-group input {
+    flex: 1;
+    padding: 10px 14px;
+    background: rgba(10,10,10,0.9);
+    border: 1px solid var(--border);
+    color: #fff;
+    border-radius: 6px;
+    outline: none;
+    font-size: 13px;
+    transition: all 0.3s;
+  }
+  .bot-input-group input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(230,36,41,0.3);
+  }
+  .bot-input-group button {
+    background: var(--primary);
+    border: none;
+    color: #fff;
+    padding: 0 18px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+  }
+  .bot-input-group button:hover {
+    background: #ff2d33;
+    box-shadow: 0 0 15px var(--primary-glow);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 32px; }
+    .hero { padding: 40px 15px 30px; }
+    .nav-inner { flex-direction: column; gap: 10px; }
+    .events-grid { grid-template-columns: 1fr; }
+    .section-header { flex-direction: column; gap: 8px; text-align: center; }
   }
 </style>
 </head>
 <body>
-
-  <!-- LANGUAGE SWITCHER BUTTONS -->
-  <div class="lang-bar">
-    <button onclick="setLanguage('ka')">KA</button>
-    <button onclick="setLanguage('en')">EN</button>
-    <button onclick="setLanguage('ru')">RU</button>
-  </div>
 
   <!-- GLOBAL BACKGROUND SLIDESHOW -->
   <div class="bg-slideshow">
@@ -181,37 +556,96 @@
   </div>
   <div class="page-overlay"></div>
 
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <div class="logo">
+        <span class="logo-icon">🥊</span>
+        MMA <span>HUB</span>
+      </div>
+      <div class="lang-bar">
+        <button onclick="setLanguage('ka')">KA</button>
+        <button onclick="setLanguage('en')">EN</button>
+        <button onclick="setLanguage('ru')">RU</button>
+      </div>
+    </div>
+  </nav>
+
   <!-- HERO SECTION -->
   <div class="hero">
-    <h1>MMA <span>INTELLIGENCE HUB</span></h1>
-    <div class="subtitle" data-translate="subtitle">Live Odds & Arbitrage Monitoring</div>
+    <div class="hero-tag">UFC Analytics</div>
+    <h1>MMA <span>HUB</span></h1>
+    <div class="subtitle" data-translate="subtitle">Live Odds & Picks</div>
+    <div class="hero-actions">
+      <a href="#events" class="btn-primary">ივენთები</a>
+      <a href="#news" class="btn-outline">ამბები</a>
+    </div>
   </div>
 
-  <!-- CONTENT GRID: DYNAMIC EVENTS FROM DATABASE -->
+  <!-- CONTENT GRID -->
   <div class="container">
-    <div class="card">
-      <h2 data-translate="live_events">მიმდინარე ივენთები</h2>
-      {% for event in events %}
-        <div class="event-info">
-          <strong>{{ event.promotion }}</strong><br>
-          📅 თარიღი: {{ event.event_date }}
+
+    <!-- მიმდინარე ივენთები -->
+    <div class="card" id="events">
+      <div class="section-header">
+        <h2><span class="section-icon">📅</span> <span data-translate="live_events">ივენთები</span></h2>
+        <div class="live-badge">LIVE</div>
+      </div>
+      <div class="events-grid">
+        {% for event in events %}
+        <div class="event-card">
+          <div class="event-promo">{{ event.promotion }}</div>
+          <div class="event-date">📅 {{ event.event_date }}</div>
+          <div class="event-status">Upcoming</div>
         </div>
-      {% else %}
-        <p style="color: #777; font-size: 13px;" data-translate="no_events">ივენთები ჯერ არ მოიძებნა</p>
-      {% endfor %}
+        {% else %}
+        <p style="color: #777; font-size: 13px;" data-translate="no_events">ივენთები არ არის</p>
+        {% endfor %}
+      </div>
     </div>
 
-    <div class="card">
-      <h2 data-translate="arb_opportunities">არბიტრაჟის შესაძლებლობები</h2>
-      <div style="color: #777; font-size: 13px; text-transform: uppercase;" data-translate="coming_soon">Coming Soon</div>
+    <!-- დიდი ნიუსების სექცია -->
+    <div class="card" id="news">
+      <div class="section-header">
+        <h2><span class="section-icon">🔥</span> <span data-translate="news_title">UFC სიახლეები</span></h2>
+      </div>
+      <div class="news-grid">
+        {% for article in articles %}
+        <div class="news-card">
+          {% if article.image_url %}
+          <img src="{{ article.image_url }}" class="news-img" alt="{{ article.title }}">
+          {% endif %}
+          <div class="news-content">
+            <span class="news-badge">{{ article.category }}</span>
+            <h3 class="news-title">{{ article.title }}</h3>
+            <div class="news-date">🕒 {{ article.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+            <div class="news-text">{{ article.content[:100] }}...</div>
+            <a href="#" class="news-btn" data-translate="read_more">ნახვა</a>
+          </div>
+        </div>
+        {% else %}
+        <p style="color: #777; font-size: 13px;" data-translate="no_news">სიახლეები არ არის</p>
+        {% endfor %}
+      </div>
     </div>
+
   </div>
 
-  <!-- MMA EXPERT BOT -->
-  <div class="bot-section">
+  <!-- MMA BOT -->
+  <div class="bot-section" id="bot">
     <div class="bot-card">
-      <h2 data-translate="bot_title">MMA ექსპერტი ბოტი</h2>
-      <input type="text" id="botInput" placeholder="ჰკითხე რამე UFC-ზე...">
+      <div class="bot-header">
+        <div class="bot-avatar">🤖</div>
+        <div>
+          <h2 data-translate="bot_title">MMA ბოტი</h2>
+          <p>UFC ანალიზი</p>
+        </div>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+      <div class="bot-input-group">
+        <input type="text" id="botInput" placeholder="კითხე UFC-ზე..." data-translate-placeholder="bot_placeholder">
+        <button onclick="sendBotMessage()">➤</button>
+      </div>
     </div>
   </div>
 
@@ -223,48 +657,85 @@
       slides[current].classList.remove('active');
       current = (current + 1) % slides.length;
       slides[current].classList.add('active');
-    }, 4000);
+    }, 4500);
 
     /* Multilingual Dictionary Support (KA, EN, RU) */
     const translations = {
       ka: {
-        subtitle: "ლაივ ოდსები და არბიტრაჟის მონიტორინგი",
-        live_events: "მიმდინარე ივენთები",
-        arb_opportunities: "არბიტრაჟის შესაძლებლობები",
-        coming_soon: "მალე დაემატება",
-        bot_title: "MMA ექსპერტი ბოტი",
-        bot_placeholder: "ჰკითხე რამე UFC-ზე..."
+        subtitle: "Live Odds & Picks",
+        live_events: "ივენთები",
+        no_events: "ივენთები არ არის",
+        news_title: "UFC სიახლეები",
+        no_news: "სიახლეები არ არის",
+        read_more: "ნახვა",
+        bot_title: "MMA ბოტი",
+        bot_placeholder: "კითხე UFC-ზე..."
       },
       en: {
-        subtitle: "Live Odds & Arbitrage Monitoring",
-        live_events: "Active Events",
-        arb_opportunities: "Arbitrage Opportunities",
-        coming_soon: "Coming Soon",
-        bot_title: "MMA Expert Bot",
-        bot_placeholder: "Ask anything about UFC..."
+        subtitle: "Live Odds & Picks",
+        live_events: "Events",
+        no_events: "No events",
+        news_title: "UFC News",
+        no_news: "No news",
+        read_more: "View",
+        bot_title: "MMA Bot",
+        bot_placeholder: "Ask about UFC..."
       },
       ru: {
-        subtitle: "Мониторинг коэффициентов и арбитража",
-        live_events: "Актуальные события",
-        arb_opportunities: "Арбитражные возможности",
-        coming_soon: "Скоро",
-        bot_title: "MMA Эксперт Бот",
-        bot_placeholder: "Спросите что-нибудь о UFC..."
+        subtitle: "Live Odds & Picks",
+        live_events: "События",
+        no_events: "Нет событий",
+        news_title: "Новости UFC",
+        no_news: "Нет новостей",
+        read_more: "Смотреть",
+        bot_title: "MMA Бот",
+        bot_placeholder: "Спроси о UFC..."
       }
     };
 
     function setLanguage(lang) {
       document.querySelectorAll('[data-translate]').forEach(el => {
         const key = el.getAttribute('data-translate');
-        if (translations[lang][key]) {
+        if (translations[lang] && translations[lang][key]) {
           el.innerText = translations[lang][key];
         }
       });
       const input = document.getElementById('botInput');
-      if (input && translations[lang]['bot_placeholder']) {
+      if (input && translations[lang] && translations[lang]['bot_placeholder']) {
         input.placeholder = translations[lang]['bot_placeholder'];
       }
     }
+
+    /* Simple Bot Chat Demo */
+    function sendBotMessage() {
+      const input = document.getElementById('botInput');
+      const log = document.getElementById('chatLog');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'chat-msg user';
+      userMsg.textContent = text;
+      log.appendChild(userMsg);
+
+      input.value = '';
+
+      const botMsg = document.createElement('div');
+      botMsg.className = 'chat-msg bot';
+      botMsg.textContent = '...';
+      log.appendChild(botMsg);
+
+      setTimeout(() => {
+        botMsg.textContent = 'ბოტი მალე იქნება სრულად ფუნქციური.';
+      }, 700);
+
+      log.scrollTop = log.scrollHeight;
+    }
+
+    // Enter key support
+    document.getElementById('botInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') sendBotMessage();
+    });
   </script>
 
 </body>
