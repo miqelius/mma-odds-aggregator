@@ -80,3 +80,16 @@ class OddsRecord(Base):
 
 
 __all__ = ["User", "NewsItem", "Fighter", "Event", "OddsRecord", "UserRole", "Base"]
+
+from datetime import datetime
+from sqlalchemy import Column, Integer, String, Text, DateTime
+
+class Article(Base):
+    __tablename__ = "articles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    category = Column(String, default="UFC News")
+    image_url = Column(String, nullable=True)
+    content = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
