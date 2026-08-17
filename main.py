@@ -8,6 +8,12 @@ from sqladmin import Admin, ModelView
 from sqladmin.authentication import AuthenticationBackend
 from starlette.middleware.sessions import SessionMiddleware
 from fastapi.staticfiles import StaticFiles
+import os
+from fastapi.staticfiles import StaticFiles
+
+# ავტომატურად შექმნის static საქაღალდეს, რომ სერვერმა არ იჩივლოს
+os.makedirs("static", exist_ok=True)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 from app.db.database import SessionLocal, engine
 from app.models import Base, Event, Fighter, OddsRecord
@@ -110,3 +116,11 @@ def get_odds(db: Session = Depends(get_db)):
 async def get_legendary_fights():
     data = await scrape_tapology_legends()
     return data
+
+# --- ავტომატური ნიუსების აგენტის ენდპოინტი ---
+from app.services.news_agent import fetch_and_save_ufc_news
+
+@app.get("/api/fetch-news")
+async def run_news_agent(db: Session = Depends(get_db)):
+    result = await fetch_and_save_ufc_news(db)
+    return result
