@@ -2,6 +2,8 @@ from fastapi import FastAPI, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqladmin import Admin, ModelView
+
 from app.db.database import SessionLocal, engine
 from app.models import Base, Event, Fighter, OddsRecord
 from app.api.v1.arbitrage import router as arbitrage_router
@@ -14,6 +16,12 @@ app = FastAPI(
     description="Arbitrage Detection & Odds Monitoring API",
     version="1.0.0"
 )
+
+# SQLAdmin ადმინ-პანელის ინიციალიზაცია და მოდელების რეგისტრაცია
+admin = Admin(app, engine)
+admin.add_view(ModelView(Event))
+admin.add_view(ModelView(Fighter))
+admin.add_view(ModelView(OddsRecord))
 
 # მივუჩინოთ FastAPI-ს სად არის ჩვენი templates საქაღალდე
 templates = Jinja2Templates(directory="templates")
