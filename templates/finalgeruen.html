@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MMA Betting Intelligence Hub</title>
+<style>
+  body { 
+    margin: 0; 
+    font-family: sans-serif; 
+    background: #050505; 
+    color: #fff; 
+    overflow-x: hidden; 
+    position: relative; 
+    min-height: 100vh;
+  }
+  
+  /* GLOBAL BACKGROUND SLIDESHOW */
+  .bg-slideshow { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    z-index: -2; 
+    pointer-events: none; 
+    background: #050505;
+  }
+  .bg-slideshow img { 
+    position: absolute; 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    object-position: center top; 
+    transition: opacity 1.5s ease-in-out; 
+    opacity: 0; 
+  }
+  .bg-slideshow img.active { 
+    opacity: 1; 
+  }
+  
+  .page-overlay {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(5, 5, 5, 0.8); 
+    z-index: -1; 
+    pointer-events: none;
+  }
+
+  /* LANGUAGE SWITCHER */
+  .lang-bar {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 10;
+  }
+  .lang-bar button {
+    background: rgba(18, 10, 10, 0.9);
+    border: 1px solid #3d1a1a;
+    color: #fff;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: 0.2s;
+  }
+  .lang-bar button:hover {
+    border-color: #ff3333;
+    color: #ff3333;
+  }
+
+  /* HERO SECTION */
+  .hero { 
+    padding: 40px 20px 20px 20px; 
+    text-align: center; 
+  }
+  .hero h1 { 
+    font-size: 38px; 
+    margin: 0; 
+    color: #fff; 
+    text-shadow: 0 2px 10px rgba(0,0,0,0.9); 
+    letter-spacing: 2px; 
+    text-transform: uppercase; 
+  }
+  .hero h1 span { 
+    color: #ff3333; 
+  }
+  .subtitle { 
+    font-size: 13px; 
+    color: #ff3333; 
+    letter-spacing: 3px; 
+    margin-top: 8px; 
+    text-transform: uppercase; 
+    font-weight: bold; 
+  }
+
+  /* GRID LAYOUT */
+  .container { 
+    max-width: 1100px; 
+    margin: 20px auto; 
+    padding: 0 20px; 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 20px; 
+  }
+  .card { 
+    background: rgba(18, 10, 10, 0.85); 
+    border: 1px solid #3d1a1a; 
+    border-radius: 8px; 
+    padding: 20px; 
+    transition: 0.3s; 
+    backdrop-filter: blur(5px);
+  }
+  .card:hover { 
+    border-color: #ff3333; 
+  }
+  .card h2 { 
+    color: #ff3333; 
+    font-size: 16px; 
+    margin-top: 0; 
+    margin-bottom: 10px; 
+    letter-spacing: 1px; 
+  }
+  .event-info {
+    font-size: 14px;
+    color: #ddd;
+    margin: 5px 0;
+  }
+
+  /* BOT SECTION */
+  .bot-section { 
+    max-width: 1100px; 
+    margin: 20px auto 40px auto; 
+    padding: 0 20px; 
+  }
+  .bot-card { 
+    background: rgba(18, 10, 10, 0.85); 
+    border: 1px solid #ff3333; 
+    border-radius: 8px; 
+    padding: 20px; 
+    text-align: center; 
+    backdrop-filter: blur(5px);
+  }
+  .bot-card h2 { 
+    margin: 0 0 10px 0; 
+    color: #ff3333; 
+    font-size: 16px; 
+  }
+  .bot-card input { 
+    width: 70%; 
+    padding: 10px; 
+    background: #050505; 
+    border: 1px solid #3d1a1a; 
+    color: #fff; 
+    border-radius: 4px; 
+    outline: none; 
+  }
+  .bot-card input:focus { 
+    border-color: #ff3333; 
+  }
+</style>
+</head>
+<body>
+
+  <!-- LANGUAGE SWITCHER BUTTONS -->
+  <div class="lang-bar">
+    <button onclick="setLanguage('ka')">KA</button>
+    <button onclick="setLanguage('en')">EN</button>
+    <button onclick="setLanguage('ru')">RU</button>
+  </div>
+
+  <!-- GLOBAL BACKGROUND SLIDESHOW -->
+  <div class="bg-slideshow">
+    <img src="/static/tony.png" class="active" alt="Tony Ferguson">
+    <img src="/static/khabib.jpg" alt="Khabib Nurmagomedov">
+    <img src="/static/jones.jpg" alt="Jon Jones">
+    <img src="/static/conor.jpg" alt="Conor McGregor">
+  </div>
+  <div class="page-overlay"></div>
+
+  <!-- HERO SECTION -->
+  <div class="hero">
+    <h1>MMA <span>INTELLIGENCE HUB</span></h1>
+    <div class="subtitle" data-translate="subtitle">Live Odds & Arbitrage Monitoring</div>
+  </div>
+
+  <!-- CONTENT GRID: DYNAMIC EVENTS FROM DATABASE -->
+  <div class="container">
+    <div class="card">
+      <h2 data-translate="live_events">მიმდინარე ივენთები</h2>
+      {% for event in events %}
+        <div class="event-info">
+          <strong>{{ event.promotion }}</strong><br>
+          📅 თარიღი: {{ event.event_date }}
+        </div>
+      {% else %}
+        <p style="color: #777; font-size: 13px;" data-translate="no_events">ივენთები ჯერ არ მოიძებნა</p>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <h2 data-translate="arb_opportunities">არბიტრაჟის შესაძლებლობები</h2>
+      <div style="color: #777; font-size: 13px; text-transform: uppercase;" data-translate="coming_soon">Coming Soon</div>
+    </div>
+  </div>
+
+  <!-- MMA EXPERT BOT -->
+  <div class="bot-section">
+    <div class="bot-card">
+      <h2 data-translate="bot_title">MMA ექსპერტი ბოტი</h2>
+      <input type="text" id="botInput" placeholder="ჰკითხე რამე UFC-ზე...">
+    </div>
+  </div>
+
+  <script>
+    /* Background Slideshow Logic */
+    let slides = document.querySelectorAll('.bg-slideshow img');
+    let current = 0;
+    setInterval(() => {
+      slides[current].classList.remove('active');
+      current = (current + 1) % slides.length;
+      slides[current].classList.add('active');
+    }, 4000);
+
+    /* Multilingual Dictionary Support (KA, EN, RU) */
+    const translations = {
+      ka: {
+        subtitle: "ლაივ ოდსები და არბიტრაჟის მონიტორინგი",
+        live_events: "მიმდინარე ივენთები",
+        arb_opportunities: "არბიტრაჟის შესაძლებლობები",
+        coming_soon: "მალე დაემატება",
+        bot_title: "MMA ექსპერტი ბოტი",
+        bot_placeholder: "ჰკითხე რამე UFC-ზე..."
+      },
+      en: {
+        subtitle: "Live Odds & Arbitrage Monitoring",
+        live_events: "Active Events",
+        arb_opportunities: "Arbitrage Opportunities",
+        coming_soon: "Coming Soon",
+        bot_title: "MMA Expert Bot",
+        bot_placeholder: "Ask anything about UFC..."
+      },
+      ru: {
+        subtitle: "Мониторинг коэффициентов и арбитража",
+        live_events: "Актуальные события",
+        arb_opportunities: "Арбитражные возможности",
+        coming_soon: "Скоро",
+        bot_title: "MMA Эксперт Бот",
+        bot_placeholder: "Спросите что-нибудь о UFC..."
+      }
+    };
+
+    function setLanguage(lang) {
+      document.querySelectorAll('[data-translate]').forEach(el => {
+        const key = el.getAttribute('data-translate');
+        if (translations[lang][key]) {
+          el.innerText = translations[lang][key];
+        }
+      });
+      const input = document.getElementById('botInput');
+      if (input && translations[lang]['bot_placeholder']) {
+        input.placeholder = translations[lang]['bot_placeholder'];
+      }
+    }
+  </script>
+
+</body>
+</html>
